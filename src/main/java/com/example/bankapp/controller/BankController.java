@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 
@@ -32,9 +33,9 @@ public class BankController {
     }
 
     @PostMapping("/register")
-    public String registerAccount(@RequestParam String username, @RequestParam String password, Model model) {
+    public String registerAccount(@RequestParam String username, @RequestParam String email, @RequestParam String password, Model model) {
         try {
-            accountService.registerAccount(username, password);
+            accountService.registerAccount(username, email, password);
             return "redirect:/login";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -48,24 +49,28 @@ public class BankController {
     }
 
     @PostMapping("/deposit")
-    public String deposit(@RequestParam BigDecimal amount) {
+    public String deposit(@RequestParam BigDecimal amount, RedirectAttributes redirectAttributes) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountService.findAccountByUsername(username);
-        accountService.deposit(account, amount);
+        try {
+            accountService.deposit(account, amount);
+            redirectAttributes.addFlashAttribute("successMessage", "Deposit of $" + amount + " was successful!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Deposit failed: " + e.getMessage());
+        }
         return "redirect:/dashboard";
     }
 
     @PostMapping("/withdraw")
-    public String withdraw(@RequestParam BigDecimal amount, Model model) {
+    public String withdraw(@RequestParam BigDecimal amount, Model model, RedirectAttributes redirectAttributes) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountService.findAccountByUsername(username);
 
         try {
             accountService.withdraw(account, amount);
+            redirectAttributes.addFlashAttribute("successMessage", "Withdrawal of $" + amount + " was successful!");
         } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("account", account);
-            return "dashboard";
+            redirectAttributes.addFlashAttribute("errorMessage", "Withdrawal failed: " + e.getMessage());
         }
 
         return "redirect:/dashboard";
@@ -80,19 +85,17 @@ public class BankController {
     }
 
     @PostMapping("/transfer")
-    public String transferAmount(@RequestParam String toUsername, @RequestParam BigDecimal amount, Model model) {
+    public String transferAmount(@RequestParam String toUsername, @RequestParam BigDecimal amount, Model model, RedirectAttributes redirectAttributes) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account fromAccount = accountService.findAccountByUsername(username);
 
         try {
             accountService.transferAmount(fromAccount, toUsername, amount);
+            redirectAttributes.addFlashAttribute("successMessage", "Transfer of $" + amount + " to " + toUsername + " was successful!");
         } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("account", fromAccount);
-            return "dashboard";
+            redirectAttributes.addFlashAttribute("errorMessage", "Transfer failed: " + e.getMessage());
         }
 
         return "redirect:/dashboard";
     }
-
 }

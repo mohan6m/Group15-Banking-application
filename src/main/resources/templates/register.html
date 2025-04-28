@@ -5,10 +5,11 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-		/*
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #e633ff, #ffd700);
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(255, 215, 0, 0.7)),
+                        url('https://globalunisearch.com/images/university-galleries/856111690456700.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: #ffffff;
             margin: 0;
             padding: 0;
@@ -17,21 +18,6 @@
             justify-content: center;
             align-items: center;
         }
-		*/
-		
-		body {
-				    font-family: 'Arial', sans-serif;
-				    background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(255, 215, 0, 0.7)),
-				                url('https://globalunisearch.com/images/university-galleries/856111690456700.jpg') no-repeat center center fixed;
-				    background-size: cover;
-				    color: #ffffff;
-				    margin: 0;
-				    padding: 0;
-				    height: 100vh;
-				    display: flex;
-				    justify-content: center;
-				    align-items: center;
-				}
 
         .navbar-custom {
             background-color: rgba(0, 0, 0, 0.7);
@@ -134,12 +120,11 @@
 <nav class="navbar navbar-expand-lg navbar-custom">
     <a class="navbar-brand" href="#">Elmhurst Bank</a>
     <div class="ml-auto social-icons">
-		<a href="https://www.youtube.com/@ElmhurstUniversity1871" target="_blank" title="YouTube">
-		            <i class="fab fa-youtube"></i>
-		        </a>
-		        <a href="https://www.linkedin.com/school/elmhurstuniversity/posts/?feedView=all" target="_blank" title="LinkedIn">
-		            <i class="fab fa-linkedin"></i>
-		        </a>
+        <a href="https://www.youtube.com/@ElmhurstUniversity1871" target="_blank" title="YouTube">
+            <i class="fab fa-youtube"></i>
+        </a>
+        <a href="https://www.linkedin.com/school/elmhurstuniversity/posts/?feedView=all" target="_blank" title="LinkedIn">
+            <i class="fab fa-linkedin"></i>
         </a>
     </div>
 </nav>
@@ -150,6 +135,10 @@
         <div class="form-group">
             <label>Username:</label>
             <input type="text" class="form-control" name="username" required />
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" class="form-control" name="email" required />
         </div>
         <div class="form-group">
             <label>Password:</label>
@@ -166,10 +155,8 @@
 
 <!-- Footer -->
 <footer class="footer">
-    <p>&copy; 2025 Code With Elmhurst. All rights reserved. | <a href="#" class="custom-link">Privacy Policy</a> | <a href="#" class="custom-link">Terms of Service</a></p>
+    <p>© 2025 Code With Elmhurst. All rights reserved. | <a href="#" class="custom-link">Privacy Policy</a> | <a href="#" class="custom-link">Terms of Service</a></p>
 </footer>
 
 </body>
 </html>
-
-

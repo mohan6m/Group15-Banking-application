@@ -32,25 +32,25 @@ public class AccountService implements UserDetailsService {
     @Autowired
     private TransactionRepository transactionRepository;
     
-//    @Autowired
-//	private EmailSenderService emailsenderservice;
+    @Autowired
+    private EmailSenderService emailsenderservice;
 
     public Account findAccountByUsername(String username) {
         return accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    public Account registerAccount(String username, String password) {
+    public Account registerAccount(String username, String email, String password) {
         if (accountRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
         Account account = new Account();
         account.setUsername(username);
+        account.setEmail(email);
         account.setPassword(passwordEncoder.encode(password)); // Encrypt password
         account.setBalance(BigDecimal.ZERO); // Initial balance set to 0
         return accountRepository.save(account);
     }
-
 
     public void deposit(Account account, BigDecimal amount) {
         account.setBalance(account.getBalance().add(amount));
@@ -63,13 +63,16 @@ public class AccountService implements UserDetailsService {
                 account
         );
         transactionRepository.save(transaction);
-//        // Send Email
-//        String subject = "Deposit Successful";
-//        String body = "Dear " + account.getUsername() + ",\n\n" +
-//                      "You have deposited $" + amount + ".\n" +
-//                      "Current Balance: $" + account.getBalance() + "\n\n" +
-//                      "Thank you for banking with us.";
-//        emailsenderservice.sendSimpleEmail(account.getEmail(), subject, body);
+
+        // Send Email if email exists
+        if (account.getEmail() != null && !account.getEmail().isEmpty()) {
+            String subject = "Deposit Successful";
+            String body = "Dear " + account.getUsername() + ",\n\n" +
+                          "You have deposited $" + amount + ".\n" +
+                          "Current Balance: $" + account.getBalance() + "\n\n" +
+                          "Thank you for banking with us.";
+            emailsenderservice.sendSimpleEmail(account.getEmail(), subject, body);
+        }
     }
 
     public void withdraw(Account account, BigDecimal amount) {
@@ -86,6 +89,16 @@ public class AccountService implements UserDetailsService {
                 account
         );
         transactionRepository.save(transaction);
+
+        // Send Email if email exists
+        if (account.getEmail() != null && !account.getEmail().isEmpty()) {
+            String subject = "Withdrawal Successful";
+            String body = "Dear " + account.getUsername() + ",\n\n" +
+                          "You have withdrawn $" + amount + ".\n" +
+                          "Current Balance: $" + account.getBalance() + "\n\n" +
+                          "Thank you for banking with us.";
+            emailsenderservice.sendSimpleEmail(account.getEmail(), subject, body);
+        }
     }
 
     public List<Transaction> getTransactionHistory(Account account) {
@@ -143,6 +156,25 @@ public class AccountService implements UserDetailsService {
                 toAccount
         );
         transactionRepository.save(creditTransaction);
-    }
 
+        // Send Email to sender if email exists
+        if (fromAccount.getEmail() != null && !fromAccount.getEmail().isEmpty()) {
+            String senderSubject = "Transfer Successful";
+            String senderBody = "Dear " + fromAccount.getUsername() + ",\n\n" +
+                               "You have transferred $" + amount + " to " + toAccount.getUsername() + ".\n" +
+                               "Current Balance: $" + fromAccount.getBalance() + "\n\n" +
+                               "Thank you for banking with us.";
+            emailsenderservice.sendSimpleEmail(fromAccount.getEmail(), senderSubject, senderBody);
+        }
+
+        // Send Email to recipient if email exists
+        if (toAccount.getEmail() != null && !toAccount.getEmail().isEmpty()) {
+            String recipientSubject = "Transfer Received";
+            String recipientBody = "Dear " + toAccount.getUsername() + ",\n\n" +
+                                  "You have received $" + amount + " from " + fromAccount.getUsername() + ".\n" +
+                                  "Current Balance: $" + toAccount.getBalance() + "\n\n" +
+                                  "Thank you for banking with us.";
+            emailsenderservice.sendSimpleEmail(toAccount.getEmail(), recipientSubject, recipientBody);
+        }
+    }
 }

@@ -71,7 +71,7 @@
         }
 
         .account-details {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 0, 0.2);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -112,6 +112,96 @@
             75% { transform: translateX(-5px); }
             100% { transform: translateX(0); }
         }
+
+        /* Overlay and Popup Styles */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .popup-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: linear-gradient(135deg, #1e2a44 0%, #2c3e50 100%); /* Unique navy blue gradient */
+            color: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #ffd700; /* Gold border */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            opacity: 1;
+            transition: transform 0.3s ease, opacity 0.5s ease;
+        }
+
+        .popup-card.success {
+            border-left: 6px solid #28a745;
+        }
+
+        .popup-card.error {
+            border-left: 6px solid #dc3545;
+        }
+
+        .popup-card.fade-out {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        .popup-card:hover {
+            transform: translate(-50%, -50%) scale(0.95); /* Slight scale on hover */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+        }
+
+        .popup-card .bank-label {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffd700; /* Gold color for the label */
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+            animation: popIn 0.5s ease forwards;
+        }
+
+        .popup-card .bank-label::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background: #ffd700; /* Gold underline */
+            border-radius: 2px;
+        }
+
+        .popup-card .message {
+            margin: 15px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .popup-card .closing-message {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #d1d1d1;
+            font-style: italic;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -133,7 +223,7 @@
     <!-- Account Details Section -->
     <div class="account-details">
         <h4>Account Details</h4>
-        <p><strong>Account Number:</strong> <span th:text="${account.id}"></span></p> <!-- Use account.id for account number -->
+        <p><strong>Account Number:</strong> <span th:text="${account.id}"></span></p>
         <p><strong>Account Type:</strong> Savings</p>
     </div>
 
@@ -147,7 +237,7 @@
                 <form method="post" action="/deposit" class="form-container">
                     <div class="form-group">
                         <label>Amount:</label>
-                        <input type="number" class="form-control" name="amount" required />
+                        <input type="number" class="form-control" name="amount" required step="0.01"/>
                     </div>
                     <button type="submit" class="btn btn-block btn-success">Submit</button>
                 </form>
@@ -163,7 +253,7 @@
                 <form method="post" action="/withdraw" class="form-container">
                     <div class="form-group">
                         <label>Amount:</label>
-                        <input type="number" class="form-control" name="amount" required />
+                        <input type="number" class="form-control" name="amount" required step="0.01"/>
                     </div>
                     <button type="submit" class="btn btn-block btn-success">Submit</button>
                 </form>
@@ -183,7 +273,7 @@
                     </div>
                     <div class="form-group">
                         <label>Amount:</label>
-                        <input type="number" class="form-control" name="amount" required />
+                        <input type="number" class="form-control" name="amount" required step="0.01"/>
                     </div>
                     <button type="submit" class="btn btn-block btn-success">Submit</button>
                 </form>
@@ -191,11 +281,52 @@
         </div>
     </div>
 
-    <p th:if="${error != null}" th:text="${error}" class="error text-center mt-3"></p>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Popup for Success Message -->
+    <div th:if="${successMessage}" class="popup-card success" id="successPopup">
+        <div class="bank-label">Elmhurst Bank</div>
+        <div class="message" th:text="${successMessage}"></div>
+        <div class="closing-message">Thanks for banking with us!</div>
+    </div>
+
+    <!-- Popup for Error Message -->
+    <div th:if="${errorMessage}" class="popup-card error" id="errorPopup">
+        <div class="bank-label">Elmhurst Bank</div>
+        <div class="message" th:text="${errorMessage}"></div>
+        <div class="closing-message">Thanks for banking with us!</div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Show overlay and popup, then auto-close after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const overlay = document.getElementById('overlay');
+        const successPopup = document.getElementById('successPopup');
+        const errorPopup = document.getElementById('errorPopup');
+
+        if (successPopup || errorPopup) {
+            overlay.style.display = 'block';
+            if (successPopup) {
+                successPopup.style.display = 'block';
+                setTimeout(() => {
+                    successPopup.classList.add('fade-out');
+                    overlay.style.display = 'none';
+                }, 3000);
+            }
+            if (errorPopup) {
+                errorPopup.style.display = 'block';
+                setTimeout(() => {
+                    errorPopup.classList.add('fade-out');
+                    overlay.style.display = 'none';
+                }, 3000);
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -17,7 +17,7 @@ public class Account implements UserDetails {
     private String username;
     private String password;
     private BigDecimal balance;
-//    private String email;
+    private String email;
 
     @OneToMany(mappedBy = "account")
     private List<Transaction> transactions;
@@ -85,12 +85,32 @@ public class Account implements UserDetails {
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
-   //new one 
-//    public String getEmail() {
-//        return email;
-//    }
-//
-//    public void setEmail(String email) {
-//        this.email = email;
-//    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
