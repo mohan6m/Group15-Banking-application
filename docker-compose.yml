@@ -11,8 +11,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/bankappdb?useSSL=false&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=Apple@1112
-      - SPRING_MAIL_USERNAME=mohannaik050@gmail.com
-      - SPRING_MAIL_PASSWORD=aqyqqnotlpjgwbja
+      - SPRING_MAIL_USERNAME=elmhurstbank@gmail.com
+      - SPRING_MAIL_PASSWORD=jbgnytlnreldlzos
     depends_on:
       - mysql-db
     networks:
